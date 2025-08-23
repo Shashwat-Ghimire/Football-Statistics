@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premier League Stats Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #f9fafb;
+      font-family: sans-serif;
+      color: #1f2937;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 1480px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding-top: 48px;
+      padding-bottom: 48px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: black;
+      opacity: 0.2;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+    }
+
+    .header-title {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    .header-title i {
+      margin-right: 12px;
+    }
+
+    .header-subtitle {
+      font-size: 20px;
+      opacity: 0.9;
+    }
+
+    .header-badges {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 8px 16px;
+      border-radius: 9999px;
+    }
+
+    .badge i {
+      margin-right: 8px;
+    }
+
+    .stats-section {
+      margin-top: -32px;
+      position: relative;
+      z-index: 20;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    @media (min-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .header-title {
+        font-size: 60px;
+      }
+      .header-subtitle {
+        font-size: 24px;
+      }
+    }
+
+    .stat-card {
+      color: white;
+      min-width: 280px;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      transform: translateY(0);
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-card-blue {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stat-card-green {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .stat-card-purple {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .stat-card-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-card-text p:first-child {
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    .stat-card-text p:last-child {
+      font-size: 36px;
+      font-weight: 700;
+    }
+
+    .stat-card-icon {
+      font-size: 36px;
+      opacity: 0.6;
+    }
+
+    .main-content {
+      padding-bottom: 48px;
+      flex-grow: 1;
+    }
+
+    .section {
+      margin-bottom: 64px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 16px;
+    }
+
+    .section-title i {
+      margin-right: 12px;
+    }
+
+    .section-subtitle {
+      color: #4b5563;
+      font-size: 18px;
+    }
+
+    .table-container {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: linear-gradient(90deg, #2563eb 0%, #9333ea 100%);
+      color: white;
+    }
+
+    th {
+      padding: 20px 28px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    th i {
+      margin-right: 8px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .table-row-hover:hover {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+      transform: scale(1.01);
+      transition: all 0.2s ease;
+    }
+
+    td {
+      padding: 20px 28px;
+      color: #374151;
+    }
+
+    td:first-child {
+      font-weight: 700;
+    }
+
+    .player-cell {
+      display: flex;
+      align-items: center;
+    }
+
+    .player-initial {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(to right, #60a5fa 0%, #a78bfa 100%);
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      margin-right: 12px;
+    }
+
+    .player-name {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .team-name {
+      color: #4b5563;
+    }
+
+    .goals-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .goals-badge i {
+      margin-right: 4px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 32px;
+    }
+
+    .chart-card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      padding: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .chart-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .chart-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .chart-title i {
+      margin-right: 12px;
+    }
+
+    .chart-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .section-divider {
+      background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+      height: 1px;
+      margin-top: 48px;
+      margin-bottom: 48px;
+    }
+
+    .clean-sheets-table thead {
+      background: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
+    }
+
+    .clean-sheets-player-initial {
+      background: linear-gradient(to right, #60a5fa 0%, #22d3ee 100%);
+    }
+
+    .clean-sheets-badge {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    .hat-tricks-table thead {
+      background: linear-gradient(90deg, #dc2626 0%, #ec4899 100%);
+    }
+
+    .hat-tricks-player-initial {
+      background: linear-gradient(to right, #f87171 0%, #f472b6 100%);
+      overflow: hidden;
+    }
+
+    .hat-tricks-badge {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .footer {
+      background-color: #111827;
+      color: white;
+      padding-top: 48px;
+      position: relative;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .footer-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .footer-section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .footer-section-title i {
+      margin-right: 8px;
+    }
+
+    .footer-text {
+      color: #9ca3af;
+    }
+
+    .footer-links ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .footer-links a {
+      color: #9ca3af;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-links a i {
+      margin-right: 8px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #374151;
+      margin-top: 32px;
+      padding-top: 32px;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .animate__animated.animate__fadeIn {
+      animation-duration: 0.5s;
+    }
+
+    canvas {
+      max-height: 500px;
+    }
+
+  </style>
+</head>
+<body class="animate__animated animate__fadeIn">
+  <header class="header">
+    <div class="header-content container">
+      <h1 class="header-title">
+        <i class="fas fa-futbol"></i>Premier League Dashboard
+      </h1>
+      <p class="header-subtitle">Season 2023-24 Statistics & Analytics</p>
+      <div class="header-badges">
+        <div class="badge">
+          <i class="fas fa-trophy"></i>Top Scorers
+        </div>
+        <div class="badge">
+          <i class="fas fa-shield-alt"></i>Clean Sheets
+        </div>
+        <div class="badge">
+          <i class="fas fa-fire"></i>Hat-Tricks
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="stats-section container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-content">
+          <div class="stat-card-text">
+            <p>Total Players</p>
+            <p>{{ stats|length }}</p>
+          </div>
+          <i class="fas fa-users stat-card-icon"></i>
+        </div>
+      </div>
+      
+      <div class="stat-card stat-card-blue">
+        <div class="stat-card-content">
+          <div class="stat-card-text">
+            <p>Hat-Tricks</p>
+            <p>{{ hat_tricks|length }}</p>
+          </div>
+          <i class="fas fa-fire stat-card-icon"></i>
+        </div>
+      </div>
+      
+      <div class="stat-card stat-card-green">
+        <div class="stat-card-content">
+          <div class="stat-card-text">
+            <p>Clean Sheets</p>
+            <p>{{ clean_sheets|length }}</p>
+          </div>
+          <i class="fas fa-shield-alt stat-card-icon"></i>
+        </div>
+      </div>
+      
+      <div class="stat-card stat-card-purple">
+        <div class="stat-card-content">
+          <div class="stat-card-text">
+            <p>Top Goals</p>
+            <p>{{ stats.0.goals }}</p>
+          </div>
+          <i class="fas fa-trophy stat-card-icon"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="main-content container">
+    
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-trophy"></i>Top Scorers
+        </h2>
+        <p class="section-subtitle">Leading goal scorers of the season</p>
+      </div>
+      
+      <div class="table-container">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <i class="fas fa-hashtag"></i>Rank
+                </th>
+                <th>
+                  <i class="fas fa-user"></i>Player
+                </th>
+                <th>
+                  <i class="fas fa-tshirt"></i>Team
+                </th>
+                <th>
+                  <i class="fas fa-futbol"></i>Goals
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in stats %}
+              <tr class="table-row-hover">
+                <td>{{ forloop.counter }}</td>
+                <td>
+                  <div class="player-cell">
+                    <div class="player-initial">
+                      {{ s.player.name|slice:":1"|upper }}
+                    </div>
+                    <span class="player-name">{{ s.player.name|title }}</span>
+                  </div>
+                </td>
+                <td class="team-name">{{ s.player.team.name|default:"Unknown"|title }}</td>
+                <td>
+                  <span class="goals-badge">
+                    <i class="fas fa-futbol"></i>{{ s.goals }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">
+            <i class="fas fa-chart-bar"></i>Goals Distribution
+          </h3>
+          <div class="chart-container">
+            <canvas id="goalsChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="chart-card">
+          <h3 class="chart-title">
+            <i class="fas fa-shield-alt"></i>Clean Sheets Distribution
+          </h3>
+          <div class="chart-container">
+            <canvas id="cleanSheetsChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-shield-alt"></i>Clean Sheets Leaders
+        </h2>
+        <p class="section-subtitle">Goalkeepers with the most clean sheets</p>
+      </div>
+      
+      <div class="table-container clean-sheets-table">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <i class="fas fa-hashtag"></i>Rank
+                </th>
+                <th>
+                  <i class="fas fa-user"></i>Player
+                </th>
+                <th>
+                  <i class="fas fa-tshirt"></i>Club
+                </th>
+                <th>
+                  <i class="fas fa-shield-alt"></i>Clean Sheets
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cs in clean_sheets %}
+              <tr class="table-row-hover">
+                <td>{{ forloop.counter }}</td>
+                <td>
+                  <div class="player-cell">
+                    <div class="player-initial clean-sheets-player-initial">
+                      {{ cs.player.name|slice:":1"|upper }}
+                    </div>
+                    <span class="player-name">{{ cs.player.name|title }}</span>
+                  </div>
+                </td>
+                <td class="team-name">{{ cs.player.team.name|default:"Unknown"|title }}</td>
+                <td>
+                  <span class="goals-badge clean-sheets-badge">
+                    <i class="fas fa-shield-alt"></i>{{ cs.clean_sheets }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-fire"></i>Hat-Tricks
+        </h2>
+        <p class="section-subtitle">All hat-tricks scored this season</p>
+      </div>
+      
+      <div class="table-container hat-tricks-table">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <i class="fas fa-user"></i>Player
+                </th>
+                <th>
+                  <i class="fas fa-home"></i>For
+                </th>
+                <th>
+                  <i class="fas fa-crosshairs"></i>Against
+                </th>
+                <th>
+                  <i class="fas fa-trophy"></i>Result
+                </th>
+                <th>
+                  <i class="fas fa-calendar"></i>Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for h in hat_tricks %}
+              <tr class="table-row-hover">
+                <td>
+                  <div class="player-cell">
+                    <div class="player-initial hat-tricks-player-initial">
+                      {{ h.player.name|slice:":1"|upper }}
+                    </div>
+                    <span class="player-name">{{ h.player.name|title }}</span>
+                  </div>
+                </td>
+                <td class="team-name">{{ h.for_team|title }}</td>
+                <td class="team-name">{{ h.against|title }}</td>
+                <td>
+                  <span class="goals-badge hat-tricks-badge">
+                    {{ h.result }}
+                  </span>
+                </td>
+                <td class="team-name">{{ h.date|date:"M d, Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h3 class="footer-section-title">
+            <i class="fas fa-futbol"></i>Premier League Stats
+          </h3>
+          <p class="footer-text">Your ultimate destination for Premier League statistics and analytics.</p>
+        </div>
+        <div>
+          <h3 class="footer-section-title">Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#"><i class="fas fa-trophy"></i>Top Scorers</a></li>
+            <li><a href="#"><i class="fas fa-shield-alt"></i>Clean Sheets</a></li>
+            <li><a href="#"><i class="fas fa-fire"></i>Hat-Tricks</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer-section-title">Season 2023-24</h3>
+          <p class="footer-text">Data sourced from official Premier League statistics.</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Premier League Stats Dashboard. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const statsDataGoals = [{% for s in stats|slice:":10" %}{ name: '{{ s.player.name|title }}', goals: {{ s.goals }} },{% endfor %}].slice(0, 10);
+    const labelsGoals = statsDataGoals.map(s => s.name.length > 15 ? s.name.substring(0, 15) + '...' : s.name);
+    
+    const dataGoals = {
+      labels: labelsGoals,
+      datasets: [{
+        label: 'Goals',
+        data: statsDataGoals.map(s => s.goals),
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(168, 85, 247, 0.8)',
+          'rgba(245, 101, 101, 0.8)',
+          'rgba(251, 191, 36, 0.8)',
+          'rgba(236, 72, 153, 0.8)',
+          'rgba(14, 165, 233, 0.8)',
+          'rgba(139, 69, 19, 0.8)',
+          'rgba(75, 85, 99, 0.8)',
+          'rgba(16, 185, 129, 0.8)'
+        ],
+        borderColor: [
+          'rgba(34, 197, 94, 1)',
+          'rgba(59, 130, 246, 1)',
+          'rgba(168, 85, 247, 1)',
+          'rgba(245, 101, 101, 1)',
+          'rgba(251, 191, 36, 1)',
+          'rgba(236, 72, 153, 1)',
+          'rgba(14, 165, 233, 1)',
+          'rgba(139, 69, 19, 1)',
+          'rgba(75, 85, 99, 1)',
+          'rgba(16, 185, 129, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    const configGoals = {
+      type: 'bar',
+      data: dataGoals,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: false,
+            text: 'Goals Distribution'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(229, 231, 235, 0.5)'
+            },
+            ticks: {
+              color: '#6b7280'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#6b7280'
+            }
+          }
+        }
+      }
+    };
+
+    var goalsChart = new Chart(
+      document.getElementById('goalsChart'),
+      configGoals
+    );
+
+    const cleanSheetsData = [{% for cs in clean_sheets|slice:":10" %}{ name: '{{ cs.player.name|title }}', clean_sheets: {{ cs.clean_sheets }} },{% endfor %}].slice(0, 10);
+    const labelsCleanSheets = cleanSheetsData.map(cs => cs.name.length > 15 ? cs.name.substring(0, 15) + '...' : cs.name);
+
+    const dataCleanSheets = {
+      labels: labelsCleanSheets,
+      datasets: [{
+        label: 'Clean Sheets',
+        data: cleanSheetsData.map(cs => cs.clean_sheets),
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(14, 165, 233, 0.8)',
+          'rgba(6, 182, 212, 0.8)',
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(168, 85, 247, 0.8)',
+          'rgba(245, 101, 101, 0.8)',
+          'rgba(251, 191, 36, 0.8)',
+          'rgba(236, 72, 153, 0.8)',
+          'rgba(139, 69, 19, 0.8)',
+          'rgba(75, 85, 99, 0.8)'
+        ],
+        borderColor: [
+          'rgba(59, 130, 246, 1)',
+          'rgba(14, 165, 233, 1)',
+          'rgba(6, 182, 212, 1)',
+          'rgba(34, 197, 94, 1)',
+          'rgba(168, 85, 247, 1)',
+          'rgba(245, 101, 101, 1)',
+          'rgba(251, 191, 36, 1)',
+          'rgba(236, 72, 153, 1)',
+          'rgba(139, 69, 19, 1)',
+          'rgba(75, 85, 99, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    const configCleanSheets = {
+      type: 'bar',
+      data: dataCleanSheets,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: false,
+            text: 'Clean Sheets Distribution'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(229, 231, 235, 0.5)'
+            },
+            ticks: {
+              color: '#6b7280'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#6b7280'
+            }
+          }
+        }
+      }
+    };
+
+    var cleanSheetsChart = new Chart(
+      document.getElementById('cleanSheetsChart'),
+      configCleanSheets
+    );
+  </script>
+</body>
+</html>
