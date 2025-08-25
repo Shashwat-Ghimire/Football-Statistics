@@ -2,7 +2,6 @@
 
 ## Introduction
 
-- Welcome and brief overview of the application
 - What the application does (displays Premier League stats)
 - Who this manual is for (non-technical users)
 
