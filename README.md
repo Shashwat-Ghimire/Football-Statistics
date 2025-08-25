@@ -292,6 +292,8 @@ With all the prerequisites installed and the application code set up in its virt
 
 The Football App uses a database to store all the player statistics, hat-tricks, and clean sheets data. Before we can add any data, we need to prepare this database. This process is called "making migrations" and "migrating", which essentially sets up the necessary tables in your database.
 
+**Note**: You need to have postgresql downloaded and running in your system along with a database named `'football_app'`.
+
 1.  **Make Migrations**: This command tells Django (the web framework the app is built on) to look at the app's models (which define the structure of our data) and create instructions for how to set up the database tables.
 
     ```bash
