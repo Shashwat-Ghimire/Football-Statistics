@@ -10,6 +10,7 @@
 - What you need before you begin
 - Installing Python (with step-by-step instructions for Windows, macOS, and Linux)
 - Installing Git (with step-by-step instructions for Windows, macOS, and Linux)
+- Installing PostgreSQL (with step-by-step instructions for Windows, macOS, and Linux)
 - Verifying installations
 
 ## 2. Setting Up the Application
@@ -155,11 +156,92 @@ There are several ways to install Git on macOS. The easiest is often by installi
     ```
     The `-y` flag will automatically confirm the installation.
 
-### 1.3. Verifying Installations
+### 1.3. Installing PostgreSQL
 
-After installing Python and Git, it's crucial to verify that they are correctly installed and accessible from your command line or terminal. This step ensures that the rest of the setup process will go smoothly.
+PostgreSQL is a powerful, open-source relational database system that the Football App uses to store its data. You will need to install PostgreSQL and create a specific database for the application to function correctly.
 
-#### 1.3.1. Verifying Python
+#### 1.3.1. For Windows Users
+
+1.  **Download PostgreSQL Installer**: Go to the official PostgreSQL download page for Windows: [https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/) [4]. Download the latest stable version of the graphical installer by EDB.
+
+2.  **Run the Installer**: Locate the downloaded `.exe` file and double-click it to start the installation wizard.
+
+3.  **Follow Installation Prompts**: 
+    *   **Installation Directory**: You can usually accept the default installation directory (e.g., `C:\Program Files\PostgreSQL\X.X`, where X.X is the version number).
+    *   **Select Components**: Ensure that "PostgreSQL Server" and "pgAdmin 4" (a graphical administration tool) are selected. You can optionally deselect "Stack Builder" and "Command Line Tools" if you prefer to manage the database via pgAdmin or the command line later.
+    *   **Data Directory**: Accept the default data directory.
+    *   **Password**: Set a strong password for the PostgreSQL superuser (`postgres`). **Remember this password**, as you will need it to connect to your database.
+    *   **Port**: The default port is `5432`. You can usually leave this as is.
+    *   **Pre-installation Summary**: Review the settings and click "Next" to begin the installation.
+
+4.  **Complete Installation**: Once the installation is complete, uncheck the option to launch Stack Builder (unless you need it for other purposes) and click "Finish".
+
+#### 1.3.2. For macOS Users
+
+There are a few ways to install PostgreSQL on macOS. Using Homebrew is generally recommended for its simplicity and ease of management.
+
+**Option 1: Install via Homebrew (Recommended)**
+
+1.  **Install Homebrew (if you don't have it)**: If you haven't already, install Homebrew by opening your Terminal and running:
+    ```bash
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    ```
+    Follow the on-screen instructions.
+
+2.  **Install PostgreSQL**: Once Homebrew is installed, run the following command in your Terminal:
+    ```bash
+    brew install postgresql
+    ```
+    This will install the latest stable version of PostgreSQL.
+
+3.  **Start PostgreSQL Service**: After installation, you need to start the PostgreSQL service. You can do this by running:
+    ```bash
+    brew services start postgresql
+    ```
+    To check if it's running, you can use `brew services list`.
+
+**Option 2: Install via Postgres.app**
+
+1.  **Download Postgres.app**: Go to [https://postgresapp.com/](https://postgresapp.com/) [5] and download the latest version of Postgres.app.
+
+2.  **Install**: Drag the downloaded `Postgres.app` to your Applications folder.
+
+3.  **Launch and Initialize**: Open Postgres.app. It will automatically start a PostgreSQL server and prompt you to initialize a new server. Click "Initialize" and then "Start". You can also configure it to start automatically when you log in.
+
+#### 1.3.3. For Linux Users (Ubuntu/Debian-based)
+
+PostgreSQL is available in the default repositories for Ubuntu/Debian, making installation straightforward.
+
+1.  **Open Terminal**: Press `Ctrl + Alt + T`.
+
+2.  **Update Package List**: Ensure your package list is up-to-date:
+    ```bash
+    sudo apt update
+    ```
+
+3.  **Install PostgreSQL**: Install the PostgreSQL server and client packages:
+    ```bash
+    sudo apt install postgresql postgresql-contrib -y
+    ```
+    The `postgresql-contrib` package provides additional utilities and functionalities.
+
+4.  **Verify Installation**: The PostgreSQL service should start automatically after installation. You can check its status with:
+    ```bash
+    sudo systemctl status postgresql
+    ```
+    It should show `active (exited)` or `active (running)`. If not, you can start it with `sudo systemctl start postgresql`.
+
+5.  **Switch to PostgreSQL User**: During installation, a default PostgreSQL superuser named `postgres` is created. To interact with PostgreSQL from the command line, you'll often need to switch to this user:
+    ```bash
+    sudo -i -u postgres
+    ```
+    You will now be in the `postgres` user's shell. To exit this shell and return to your regular user, type `exit`.
+
+### 1.4. Verifying Installations
+
+After installing Python, Git, and PostgreSQL, it's crucial to verify that they are correctly installed and accessible from your command line or terminal. This step ensures that the rest of the setup process will go smoothly.
+
+#### 1.4.1. Verifying Python
 
 1.  **Open Command Prompt/Terminal**: 
     *   **Windows**: Search for "cmd" or "Command Prompt" in the Start menu and open it.
@@ -177,7 +259,7 @@ After installing Python and Git, it's crucial to verify that they are correctly 
     ```
     You should see an output indicating the `pip` version and its location. `pip` is Python's package installer, which we'll use to install other necessary components for the app.
 
-#### 1.3.2. Verifying Git
+#### 1.4.2. Verifying Git
 
 1.  **Open Command Prompt/Terminal**: Use the same command prompt or terminal window you used for Python.
 
@@ -187,12 +269,30 @@ After installing Python and Git, it's crucial to verify that they are correctly 
     ```
     You should see an output similar to `git version 2.x.x` (the exact version number might vary). If you see an error, revisit the Git installation steps for your operating system.
 
-Once you have successfully verified both Python and Git installations, you are ready to move on to setting up the Football App!
+#### 1.4.3. Verifying PostgreSQL
+
+1.  **Open Command Prompt/Terminal**: Open a new Command Prompt (Windows) or Terminal (macOS/Linux) window.
+
+2.  **Access PostgreSQL Command Line (psql)**:
+    *   **Windows**: Open the `SQL Shell (psql)` application from your Start Menu (it's usually installed with PostgreSQL). You will be prompted for Server, Database, Port, Username, and Password. For default installation, you can press Enter for Server (`localhost`), Database (`postgres`), Port (`5432`), and Username (`postgres`). Enter the password you set during installation.
+    *   **macOS/Linux**: If you installed via Homebrew or apt, you can directly use the `psql` command. First, ensure you are the `postgres` user (for Linux) or your regular user (for macOS, if Homebrew installed it to your PATH).
+        ```bash
+        psql -U postgres
+        ```
+        You will be prompted for the password for user `postgres` (the one you set during installation).
+
+3.  **Check PostgreSQL Version**: Once connected to the `psql` prompt (you'll see `postgres=#`), type:
+    ```sql
+    SELECT version();
+    ```
+    And press Enter. You should see output showing the PostgreSQL version. To exit `psql`, type `\q` and press Enter.
+
+Once you have successfully verified Python, Git, and PostgreSQL installations, you are ready to move on to setting up the Football App!
 
 
 ## 2. Setting Up the Application
 
-Now that your computer is ready with Python and Git, it's time to get the Football App's code onto your system and prepare its environment. This section will guide you through downloading the project, creating a dedicated space for it, and installing all the necessary components.
+Now that your computer is ready with Python, Git, and PostgreSQL, it's time to get the Football App's code onto your system and prepare its environment. This section will guide you through downloading the project, creating a dedicated space for it, and installing all the necessary components.
 
 ### 2.1. Downloading the Code from GitHub
 
@@ -292,214 +392,123 @@ With all the prerequisites installed and the application code set up in its virt
 
 The Football App uses a database to store all the player statistics, hat-tricks, and clean sheets data. Before we can add any data, we need to prepare this database. This process is called "making migrations" and "migrating", which essentially sets up the necessary tables in your database.
 
-**Note**: You need to have postgresql downloaded and running in your system along with a database named `'football_app'`.
+**Note**: You need to have PostgreSQL downloaded and running in your system along with a database named `'football_app'`.
 
-1.  **Make Migrations**: This command tells Django (the web framework the app is built on) to look at the app's models (which define the structure of our data) and create instructions for how to set up the database tables.
+#### 3.1.1. Creating the `football_app` Database
 
+Before proceeding with database initialization, you need to create a PostgreSQL database named `football_app`. This database will be used by the application to store its data. You can create this database using the `createdb` command-line utility or directly within the `psql` interactive terminal.
+
+**Option 1: Using `createdb` (Recommended for simplicity)**
+
+1.  **Open Command Prompt/Terminal**: Open a new Command Prompt (Windows) or Terminal (macOS/Linux) window.
+
+2.  **Create the Database**: Run the following command. You might be prompted for the `postgres` user's password (the one you set during PostgreSQL installation).
     ```bash
-    python3 manage.py makemigrations stats
+    createdb -U postgres football_app
     ```
-    You should see output indicating that new migrations have been created. For example:
-    ```
-    Migrations for 'stats':
-      stats/migrations/0001_initial.py
-        - Create model Team
-        - Create model Player
-        - Create model PlayerSeasonStats
-        - Create model HatTrick
-      stats/migrations/0002_cleansheet.py
-        - Create model CleanSheet
-    ```
-    (The exact migration files might vary slightly, but you should see `CleanSheet` if you're using the latest version of the app.)
+    *   `-U postgres`: Specifies that you are connecting as the `postgres` superuser.
+    *   `football_app`: This is the name of the database you are creating.
 
-2.  **Apply Migrations**: Now, we apply these instructions to your database. This command actually creates the tables in your `db.sqlite3` file (which will be created automatically in your `football_app` directory if it doesn't exist).
+    If the command executes without any output, it means the database was created successfully.
 
+**Option 2: Using `psql` (More control)**
+
+1.  **Access `psql`**: Connect to the PostgreSQL interactive terminal as the `postgres` superuser. You will be prompted for the password.
+    *   **Windows**: Open `SQL Shell (psql)` from your Start Menu and enter the connection details (Database: `postgres`, User: `postgres`, Password: your password).
+    *   **macOS/Linux**: In your Terminal, run:
+        ```bash
+        psql -U postgres
+        ```
+
+2.  **Create the Database**: Once you are at the `postgres=#` prompt, type the following SQL command and press Enter:
+    ```sql
+    CREATE DATABASE football_app;
+    ```
+    You should see `CREATE DATABASE` as output if successful.
+
+3.  **Exit `psql`**: Type `\q` and press Enter to exit the `psql` terminal.
+
+After successfully creating the `football_app` database, you can proceed with the application's database initialization.
+
+1.  **Make Migrations**: 
     ```bash
-    python3 manage.py migrate
+    python manage.py makemigrations
     ```
-    You will see a series of messages indicating that various migrations are being applied. This might take a moment. Once it's complete, your database is ready to receive data.
+    This command inspects your application's models and creates migration files that describe the changes needed for your database schema.
+
+2.  **Apply Migrations**: 
+    ```bash
+    python manage.py migrate
+    ```
+    This command applies the changes described in the migration files to your `football_app` database, creating the necessary tables and columns.
+
+If both commands run successfully, your database is now initialized and ready to store data.
 
 ### 3.2. Scraping the Data
 
-Now that the database is set up, we can populate it with the latest Premier League statistics. The Football App includes a built-in tool (a "management command") that scrapes data directly from Wikipedia.
+Now that your database is set up, you can populate it with the latest Premier League statistics. The Football App includes a script to scrape data from a reliable online source.
 
-1.  **Run the Scraper**: Execute the following command to start the data scraping process:
-
+1.  **Run the Scraper**: With your virtual environment activated, execute the following command:
     ```bash
-    python3 manage.py scrape_football --url "https://en.wikipedia.org/wiki/2023%E2%80%9324_Premier_League#Season_statistics" --league "Premier League" --season "2023-24"
+    python manage.py scrape_data
     ```
-    Let's break down this command:
-    *   `python3 manage.py scrape_football`: This is the command to run our custom data scraping tool.
-    *   `--url "https://en.wikipedia.org/wiki/2023%E2%80%9324_Premier_League#Season_statistics"`: This specifies the Wikipedia page from which the data will be scraped. This URL points to the 2023-24 Premier League season statistics page.
-    *   `--league "Premier League"`: This tells the scraper which league to associate the data with.
-    *   `--season "2023-24"`: This specifies the season for the scraped data.
-
-    The scraping process might take a few minutes, as it connects to the internet, downloads the web page, extracts the tables, and saves the data into your database. You will see messages in your terminal indicating the progress, such as "Scraping complete ✅ for 2023-24" and details about the tables found and data extracted.
-
-    **Note**: You can run this command again in the future to update the data. The application is designed to handle new data without creating duplicates, ensuring your statistics are always accurate and up-to-date.
+    This process might take some time as it fetches data from the internet. You will see progress updates in your terminal. Once completed, the latest Premier League data will be stored in your `football_app` database.
 
 ### 3.3. Starting the Web Server
 
-Now that your database is populated with the latest Premier League data, it's time to start the web application. This will launch a local web server on your computer, making the Football App accessible through your web browser.
+Finally, it's time to start the web server that hosts the Football App. This will make the application accessible through your web browser.
 
-**Note** : Check or restart your postgresql to ensure that the process is actually running. You need to run the windows powershell as administrator and run `net start postgresql-x64-17`. Please note that -17 is the postgres version installed in your system.
-
-1.  **Start the Server**: In your Command Prompt/Terminal (with the virtual environment still activated), run the following command:
-
+1.  **Run the Server**: In your terminal (with the virtual environment still activated), run:
     ```bash
-    python3 manage.py runserver 0.0.0.0:8000
+    python manage.py runserver
     ```
-    Let's break down this command:
-    *   `python3 manage.py runserver`: This is the Django command to start a development web server.
-    *   `0.0.0.0:8000`: This tells the server to listen on all available network interfaces (`0.0.0.0`) and use port `8000`. This means the application will be accessible from your web browser at a specific address.
-
-    You will see output similar to this:
-    ```
-    Watching for file changes with StatReloader
-    Performing system checks...
-    System check identified no issues (0 silenced).
-    August 19, 2025 - 09:14:10
-    Django version 5.2.5, using settings 'football_stats.settings'
-    Starting development server at http://0.0.0.0:8000/
-    Quit the server with CONTROL-C.
-    WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
-    For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
-    ```
-    **Important**: Do not close this Command Prompt/Terminal window. The server needs to keep running for the application to be accessible. If you close it, the application will stop.
+    You will see output indicating that the development server is starting, usually on `http://127.0.0.1:8000/` or `http://localhost:8000/`.
 
 ### 3.4. Accessing the Application in Your Browser
 
-Finally, with the web server running, you can now open your web browser and view the Football App dashboard!
+1.  **Open Your Web Browser**: Open your preferred web browser (Chrome, Firefox, Edge, Safari, etc.).
 
-1.  **Open Your Web Browser**: Launch your preferred web browser (e.g., Chrome, Firefox, Edge, Safari).
+2.  **Enter the Address**: In the address bar, type the address provided by the `runserver` command (e.g., `http://127.0.0.1:8000/`) and press Enter.
 
-2.  **Enter the Address**: In the address bar of your browser, type the following address and press Enter:
+    You should now see the Football App dashboard, displaying the Premier League statistics!
 
-    ```
-    http://127.0.0.1:8000/
-    ```
-    This address (`127.0.0.1`) refers to your own computer (also known as `localhost`), and `:8000` is the port number we specified when starting the server. You should now see the Football App dashboard, displaying the Premier League statistics!
-
-    Congratulations! You have successfully set up and run the Football App on your local machine. You can now explore the top scorers, clean sheets leaders, and hat-tricks for the 2023-24 Premier League season.
 
 ## 4. Troubleshooting & FAQs
 
-Even with clear instructions, sometimes things don't go exactly as planned. This section aims to address common issues you might encounter while setting up or running the Football App, along with frequently asked questions. If you run into a problem, please refer to this section first.
-
 ### 4.1. Common Errors and How to Fix Them
 
-Here are some common error messages you might see and what they mean, along with steps to resolve them.
+*   **"'python' is not recognized as an internal or external command" (Windows)**: This usually means Python was not added to your system's PATH during installation. Re-run the Python installer and ensure the "Add Python to PATH" option is checked. Alternatively, you might need to use `py` instead of `python` in your commands (e.g., `py -m venv venv`).
 
-#### Error 1: `python3: command not found` or `python: command not found`
+*   **Virtual Environment Not Activating**: Double-check the activation command for your operating system. Ensure you are in the correct directory (the `football_app` directory) when trying to activate it.
 
-*   **Meaning**: Your system cannot find the Python interpreter. This usually means Python was not installed correctly or was not added to your system's PATH (for Windows users).
-*   **Solution**:
-    1.  **Revisit Python Installation**: Go back to Section 1.1. "Installing Python" and carefully follow the steps for your operating system. For Windows, ensure the "Add Python X.X to PATH" checkbox was selected during installation.
-    2.  **Restart Terminal/Command Prompt**: After reinstalling or modifying PATH, close your current Command Prompt/Terminal window and open a new one. Sometimes, changes to system variables only take effect in new sessions.
-    3.  **Verify Installation**: Use `python3 --version` to confirm Python is now recognized.
+*   **`pip install -r requirements.txt` errors**: If you encounter errors during package installation, it might be due to missing build tools or specific package dependencies. Try installing packages one by one (e.g., `pip install Django`) to pinpoint the problematic one. Ensure your internet connection is stable.
 
-#### Error 2: `pip is not recognized as an internal or external command` or `pip3: command not found`
+*   **PostgreSQL Connection Errors**: 
+    *   **Incorrect Password**: Ensure you are using the correct password for the `postgres` user. If you forgot it, you might need to reset it (this is an advanced topic and usually involves editing PostgreSQL configuration files).
+    *   **PostgreSQL Service Not Running**: Verify that the PostgreSQL service is running on your system (see Section 1.3.3 for Linux, or check your Services application on Windows).
+    *   **Port Conflict**: If another application is using port `5432`, you might need to configure PostgreSQL to use a different port during installation or in its configuration files.
 
-*   **Meaning**: Similar to the Python error, your system cannot find the `pip` (Python package installer) command.
-*   **Solution**:
-    1.  **Revisit Python Installation**: `pip` is usually installed alongside Python. Ensure Python was installed correctly as per Section 1.1.
-    2.  **For Linux**: Ensure you ran `sudo apt install python3-pip`.
-    3.  **Restart Terminal/Command Prompt**: Close and reopen your terminal.
-    4.  **Verify Installation**: Use `pip3 --version` to confirm `pip` is recognized.
+*   **"Database does not exist"**: This means you haven't created the `football_app` database in PostgreSQL. Go back to Section 3.1.1 and follow the instructions to create it.
 
-#### Error 3: `git: command not found`
+*   **"Table '...' does not exist"**: This indicates that the database migrations haven't been applied. Ensure you have run `python manage.py makemigrations` and `python manage.py migrate` successfully (Section 3.1).
 
-*   **Meaning**: Your system cannot find the Git command.
-*   **Solution**:
-    1.  **Revisit Git Installation**: Go back to Section 1.2. "Installing Git" and follow the steps for your operating system carefully.
-    2.  **Restart Terminal/Command Prompt**: Close and reopen your terminal.
-    3.  **Verify Installation**: Use `git --version` to confirm Git is recognized.
+*   **Scraping Errors**: If the `scrape_data` command fails, it could be due to changes in the website's structure from which data is being scraped, or an unstable internet connection. Check the application's logs for more specific error messages.
 
-#### Error 4: `ModuleNotFoundError: No module named 'django'` or similar `ModuleNotFoundError`
+*   **Web Server Not Starting**: Ensure no other application is using port `8000`. You can try running the server on a different port (e.g., `python manage.py runserver 8001`).
 
-*   **Meaning**: The Python packages required by the Football App are not installed in your active Python environment.
-*   **Solution**:
-    1.  **Activate Virtual Environment**: Ensure your virtual environment is activated. You should see `(venv)` at the beginning of your command prompt/terminal line. If not, activate it using the commands from Section 2.2.
-    2.  **Install Requirements**: Run `pip install -r requirements.txt` again while your virtual environment is active (Section 2.3).
+### 4.2. Frequently Asked Questions
 
-#### Error 5: `Address already in use` when starting the web server
+*   **Q: Can I use a different database system instead of PostgreSQL?**
+    A: The application is configured to use PostgreSQL. While it's technically possible to switch to other database systems (like SQLite or MySQL), it would require significant changes to the application's code and is beyond the scope of this manual.
 
-*   **Meaning**: Another program on your computer is already using port `8000`, which the Football App tries to use.
-*   **Solution**:
-    1.  **Wait and Retry**: Sometimes, a previous instance of the server might not have shut down completely. Wait a minute or two and try running `python3 manage.py runserver 0.0.0.0:8000` again.
-    2.  **Use a Different Port**: If the issue persists, you can try running the server on a different port, for example, port `8001`:
-        ```bash
-        python3 manage.py runserver 0.0.0.0:8001
-        ```
-        If you do this, remember to access the application in your browser at `http://127.0.0.1:8001/` instead of `http://127.0.0.1:8000/`.
-    3.  **Identify and Kill Process (Advanced)**: For advanced users, you can find which process is using the port and terminate it. This varies by operating system:
-        *   **Windows (Command Prompt)**:
-            ```bash
-            netstat -ano | findstr :8000
-            ```
-            Look for the `PID` (Process ID) in the last column. Then, use `taskkill /PID <PID> /F` (replace `<PID>` with the actual number).
-        *   **macOS/Linux (Terminal)**:
-            ```bash
-            sudo lsof -i :8000
-            ```
-            Look for the `PID` in the output. Then, use `kill -9 <PID>` (replace `<PID>` with the actual number).
+*   **Q: How often should I scrape new data?**
+    A: You can scrape new data whenever you want updated statistics. For Premier League data, scraping after each match week would provide the most up-to-date information.
 
-#### Error 6: `django.db.utils.OperationalError: no such table: stats_players` or similar database errors
+*   **Q: How do I stop the web server?**
+    A: In the terminal where the `python manage.py runserver` command is running, press `Ctrl + C` (Command + C on macOS).
 
-*   **Meaning**: The database tables have not been created or are corrupted.
-*   **Solution**:
-    1.  **Run Migrations**: Ensure you have successfully run the database migration commands as described in Section 3.1:
-        ```bash
-        python3 manage.py makemigrations stats
-        python3 manage.py migrate
-        ```
-    2.  **Delete `db.sqlite3` (Last Resort)**: If migrations don't fix it, you can delete the `db.sqlite3` file (located in your `football_app/football_app` directory) and then re-run the `makemigrations` and `migrate` commands. **Warning**: This will delete all existing data, so you will need to re-scrape the data afterwards.
-
-### 4.2. Frequently Asked Questions (FAQs)
-
-#### Q1: How often can I update the data?
-
-A1: You can update the data as often as you like by re-running the scraping command:
-
-```bash
-python3 manage.py scrape_football --url "https://en.wikipedia.org/wiki/2023%E2%80%9324_Premier_League#Season_statistics" --league "Premier League" --season "2023-24"
-```
-The application is designed to handle updates without creating duplicate entries.
-
-#### Q2: Can I scrape data for a different season or league?
-
-A2: The current scraper is specifically configured for the 2023-24 Premier League season from the provided Wikipedia URL. Modifying it for other seasons or leagues would require changes to the `scraper.py` file and potentially the database models, which is beyond the scope of this manual for non-technical users. It would involve understanding web scraping techniques and Django development.
-
-#### Q3: The charts are not showing data or look empty.
-
-A3: This usually means there was an issue during the data scraping process, or the database is empty. 
-
-*   **Check Scraper Output**: Look at the output in your terminal when you ran the `scrape_football` command. Did it report successful scraping? Were there any errors?
-*   **Verify Database Content**: You can quickly check if data exists by trying to re-run the scraper. If it says "Extracted X unique clean sheets" and "Extracted Y unique player stats", then data is present.
-*   **Restart Server**: Sometimes, simply restarting the web server (`Ctrl+C` to stop, then `python3 manage.py runserver 0.0.0.0:8000` to restart) can resolve display issues.
-
-#### Q4: How do I stop the application?
-
-A4: To stop the web server, go to the Command Prompt/Terminal window where the server is running and press `Ctrl + C` (hold down the `Ctrl` key and press `C`). You will see messages indicating the server is shutting down.
-
-#### Q5: How do I close the virtual environment?
-
-A5: To deactivate the virtual environment, simply type `deactivate` in your Command Prompt/Terminal and press Enter. Your prompt will return to its normal state (without `(venv)`).
-
-```bash
-deactivate
-```
-
-#### Q6: Can I access the app from another device on my network?
-
-A6: Yes, if your computer and the other device are on the same local network. Instead of `http://127.0.0.1:8000/`, you would use your computer's local IP address. To find your computer's IP address:
-
-*   **Windows**: Open Command Prompt and type `ipconfig`. Look for "IPv4 Address".
-*   **macOS/Linux**: Open Terminal and type `ifconfig` or `ip a`. Look for an IP address starting with `192.168.` or `10.`.
-
-Then, on the other device, enter `http://your_computer_ip_address:8000/` in the browser.
-
-Remember, this is for local network access only. For public access, you would need to deploy the application to a web hosting service, which is a more advanced topic.
+*   **Q: The application looks different from the screenshots I saw. Why?**
+    A: The appearance might vary slightly depending on your web browser and operating system. Ensure all required packages are installed, as some might be responsible for styling.
 
 ## 5. Conclusion
 
@@ -512,6 +521,10 @@ This application demonstrates how data can be transformed into insightful and en
 Thank you for using the Football App, and enjoy your Premier League statistics!
 
 ## References
-1. Python for Windows: https://www.python.org/downloads/windows/
-2. Python for macOS: https://www.python.org/downloads/macos/
-3. Git for Windows: https://git-scm.com/download/win
+1. Python for Windows: [https://www.python.org/downloads/windows/](https://www.python.org/downloads/windows/)
+2. Python for macOS: [https://www.python.org/downloads/macos/](https://www.python.org/downloads/macos/)
+3. Git for Windows: [https://git-scm.com/download/win](https://git-scm.com/download/win)
+4. PostgreSQL for Windows: [https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/)
+5. Postgres.app: [https://postgresapp.com/](https://postgresapp.com/)
+
+
