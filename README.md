@@ -224,9 +224,9 @@ The Football App's code is hosted on GitHub, a platform for collaborative softwa
 3.  **Download the Project**: Now, we will use the `git clone` command to download the Football App's code. This command will create a new folder named `football_app` in your current location and copy all the project files into it.
 
     ```bash
-    git clone https://github.com/your-github-username/football_app.git
+    git clone https://github.com/Shashwat-Ghimire/Football-Statistics.git
     ```
-    **Note**: You will need to replace `https://github.com/your-github-username/football_app.git` with the actual GitHub repository URL provided by the developer. If you were provided with a `.zip` file, you would simply extract it to your chosen location instead of using `git clone`.
+    **Note**: You will need to replace `https://github.com/Shashwat-Ghimire/Football-Statistics.git` with the actual GitHub repository URL provided by the developer. If you were provided with a `.zip` file, you would simply extract it to your chosen location instead of using `git clone`.
 
 4.  **Navigate into the Project Folder**: After the download is complete, you will have a new folder named `football_app`. You need to navigate into this folder to work with the project files.
 
@@ -246,11 +246,11 @@ A virtual environment is a self-contained space for your Python projects. It kee
     ```
     This command tells Python to create a new virtual environment in a folder called `venv` within your `football_app` directory. This might take a moment.
 
-2.  **Activate the Virtual Environment**: After creating the virtual environment, you need to activate it. Activating it means that any Python commands you run in that Command Prompt/Terminal window will use the Python and packages from this specific environment, not your system's global Python installation.
+2.  **Activate the Virtual Environment**: After creating the virtual environment, you need to activate it. Activating it means that any Python commands you run in that Command Prompt/Terminal window will use the Python and packages from this specific environment, not your system's global Python installation. Windows Powershell is more reliable to use.
 
     *   **Windows**:
         ```bash
-        .\venv\Scripts\activate
+        \venv\Scripts\activate
         ```
 
     *   **macOS/Linux**:
@@ -276,7 +276,9 @@ The Football App relies on several external Python packages to perform tasks lik
     ```bash
     pip install -r requirements.txt
     ```
-    This command tells `pip` to read the `requirements.txt` file and install all the listed packages. This process might take a few minutes, and you will see a lot of text scrolling by as packages are downloaded and installed. Once it's done, you should see a message indicating successful installation.
+    This command tells `pip` to read the `requirements.txt` file and install all the listed packages. `pip install -r requirements.txt`
+    This process might take a few minutes, and you will see a lot of text scrolling by as packages are downloaded and installed. Once it's done, you should see a message indicating successful installation.
+    If an error occures you can manually install these packages via `pip install *package_name*`
 
 Congratulations! You have successfully set up the Football App's code and its environment. The next step is to run the application and see it in action.
 
@@ -337,6 +339,8 @@ Now that the database is set up, we can populate it with the latest Premier Leag
 ### 3.3. Starting the Web Server
 
 Now that your database is populated with the latest Premier League data, it's time to start the web application. This will launch a local web server on your computer, making the Football App accessible through your web browser.
+
+**Note** : Check or restart your postgresql to ensure that the process is actually running. You need to run the windows powershell as administrator and run `net start postgresql-x64-17`. Please note that -17 is the postgres version installed in your system.
 
 1.  **Start the Server**: In your Command Prompt/Terminal (with the virtual environment still activated), run the following command:
 
